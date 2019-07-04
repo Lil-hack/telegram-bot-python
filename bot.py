@@ -1,48 +1,6 @@
-import logging
-import os
-import random
-import sys
+import telebot
+import config # подключаем конфиг, чтобы взять с него токен бота
 
-from telegram.ext import Updater, CommandHandler
+bot = telebot.TeleBot(config.TOKEN)
+print(bot.get_me())
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger()
-
-
-TOKEN = '873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI'
-# if mode == "dev":
-# def run(updater):
-#         updater.start_polling()
-# elif mode == "prod":
-def run(updater):
-        PORT = int(os.environ.get("PORT", "8443"))
-        HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME")
-        updater.start_webhook(listen="0.0.0.0",
-                              port=PORT,
-                              url_path=TOKEN)
-        updater.bot.set_webhook("https://{}.herokuapp.com/{}".format(HEROKU_APP_NAME, TOKEN))
-# else:
-#     logger.error("No MODE specified!")
-#     sys.exit(1)
-
-
-def start_handler(bot, update):
-    logger.info("User {} started bot".format(update.effective_user["id"]))
-    update.message.reply_text("Hello from Python!\nPress /random to get random number")
-
-
-def random_handler(bot, update):
-    number = random.randint(0, 10)
-    logger.info("User {} randomed number {}".format(update.effective_user["id"], number))
-    update.message.reply_text("Random number: {}".format(number))
-
-
-if __name__ == '__main__':
-    logger.info("Starting bot")
-    updater = Updater(TOKEN)
-
-    updater.dispatcher.add_handler(CommandHandler("start", start_handler))
-    updater.dispatcher.add_handler(CommandHandler("random", random_handler))
-
-    run(updater)
