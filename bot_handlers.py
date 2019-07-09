@@ -9,8 +9,15 @@ def send_welcome(message):
 
 
 @bot.message_handler(content_types=["text"]) # Любой текст
-def repeat_all_messages(message): 
+def repeat_all_messages(message):
+    # call = client.calls.create(
+    #     url='http://demo.twilio.com/docs/voice.xml',
+    #     to='+79162721765',
+    #     from_='+12027967603'
+    # )
+    # print(call.sid)
     bot.send_message(message.chat.id, message.text)
+
 
 
 if __name__ == '__main__':
