@@ -14,7 +14,7 @@ keyboard1 = types.ReplyKeyboardMarkup()
 keyboard1.row('Привет', 'Пока')
 bot.remove_webhook()
 time.sleep(1)
-bot.set_webhook(url="https://tel-bot-python.herokuapp.com/{}".format('873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI'))
+bot.set_webhook(url="https://tel-bot-python.herokuapp.com/873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI")
 @app.route('/')
 def index():
     """Return homepage."""
