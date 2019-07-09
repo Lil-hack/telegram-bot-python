@@ -1,50 +1,49 @@
 import flask
-from telebot import types
-from config import *
-from bot_handlers import bot
+from telebot import types, TeleBot
+
 import os
 from twilio.rest import Client
 server = flask.Flask(__name__)
 from twilio.rest import Client
-from twilio.twiml.voice_response import VoiceResponse, Say
 
-response = VoiceResponse()
-response.say('Hello World')
-
-print(response)
 account_sid = 'AC52a194acef951b3b36e94f294d836ae6'
 auth_token = '988090f0870502e26899be8b5aeb41f0'
-client = Client(account_sid, auth_token)
-call = client.calls.create(
-    url='https://raw.githubusercontent.com/akashkinKV/telegram-bot-python/master/test.xml',
-    to='+79162721765',
-    from_='+12027967603',
-    timeout='15'
-)
-print(call.sid)
-# message = client.messages.create(
-#                      body="Join Earth's mightiest heroes. Like Kevin Bacon.",
-#                      from_='+12027967603',
-#                      to='+79162721765',
-#
-#                  )
+bot = TeleBot('873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI')
+keyboard1 = types.ReplyKeyboardMarkup()
+keyboard1.row('Привет', 'Пока')
 
-# print(message.sid)
-@server.route('/' + TOKEN, methods=['POST'])
-def get_message():
-    bot.process_new_updates([types.Update.de_json(flask.request.stream.read().decode("utf-8"))])
-    return "!", 200
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    bot.send_message(message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
+
+@bot.message_handler(content_types=['text'])
+def send_text(message):
+    if message.text.lower() == 'привет':
+        bot.send_message(message.chat.id, 'Привет, мой создатель')
+        client = Client(account_sid, auth_token)
+        call = client.calls.create(
+            url='https://ex.ru',
+            to='+79162721765',
+            from_='+12027967603',
+            timeout='60'
+        )
+        print(call.sid)
 
 
-@server.route('/', methods=["GET"])
-def index():
-    bot.remove_webhook()
-    bot.set_webhook(url="https://{}.herokuapp.com/{}".format(APP_NAME, TOKEN))
-    return "Hello from Heroku!", 200
+    elif message.text.lower() == 'пока':
+        bot.send_message(message.chat.id, 'Прощай, создатель')
+    elif message.text.lower() == 'я тебя люблю':
+        bot.send_sticker(message.chat.id, 'CAADAgADZgkAAnlc4gmfCor5YbYYRAI')
+
+@bot.message_handler(content_types=['sticker'])
+def sticker_id(message):
+    print(message)
+
 
 
 if __name__ == "__main__":
-    server.run(host="localhost", port=int(os.environ.get('PORT', 5000)))
     bot.remove_webhook()
+    bot.polling()
+    server.run(host="localhost", port=int(os.environ.get('PORT', 5000)))
 
-    bot.set_webhook(url="https://ec2-18-184-5-216.eu-central-1.compute.amazonaws.comm/{}".format( TOKEN))
+
