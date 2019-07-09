@@ -17,6 +17,8 @@ keyboard1.row('Привет', 'Пока')
 def index():
     """Return homepage."""
     json_data = {'Hello': 'World!'}
+    bot.remove_webhook()
+    bot.polling()
     return jsonify(json_data)
 
 @bot.message_handler(commands=['start'])
