@@ -4,7 +4,7 @@ from telebot import types, TeleBot
 
 import os
 from twilio.rest import Client
-
+import time
 from twilio.rest import Client
 
 account_sid = 'AC52a194acef951b3b36e94f294d836ae6'
@@ -12,13 +12,15 @@ auth_token = '988090f0870502e26899be8b5aeb41f0'
 bot = TeleBot('873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI')
 keyboard1 = types.ReplyKeyboardMarkup()
 keyboard1.row('Привет', 'Пока')
-
+bot.remove_webhook()
+time.sleep(1)
+bot.set_webhook(url="https://tel-bot-python.herokuapp.com/{}".format('873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI'))
 @app.route('/')
 def index():
     """Return homepage."""
     json_data = {'Hello': 'World!'}
-    bot.remove_webhook()
-    bot.polling()
+    # bot.remove_webhook()
+    # bot.polling()
     return jsonify(json_data)
 
 @bot.message_handler(commands=['start'])
