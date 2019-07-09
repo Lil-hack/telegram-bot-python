@@ -3,6 +3,7 @@ app = Flask(__name__)
 from telebot import types, TeleBot
 
 import os
+<<<<<<< HEAD
 from twilio.rest import Client
 import time
 from twilio.rest import Client
@@ -16,6 +17,19 @@ bot.remove_webhook()
 time.sleep(1)
 bot.set_webhook(url="https://tel-bot-python.herokuapp.com/873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI")
 @app.route('/')
+=======
+
+server = flask.Flask(__name__)
+
+
+@server.route('/' + TOKEN, methods=['POST'])
+def get_message():
+    bot.process_new_updates([types.Update.de_json(flask.request.stream.read().decode("utf-8"))])
+    return "!", 200
+
+
+@server.route('/', methods=["GET"])
+>>>>>>> parent of efe5554... test
 def index():
     """Return homepage."""
     json_data = {'Hello': 'World!'}
@@ -53,8 +67,12 @@ def sticker_id(message):
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     bot.remove_webhook()
     bot.polling()
     app.run()
 
 
+=======
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+>>>>>>> parent of efe5554... test
