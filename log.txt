@@ -1,0 +1,4 @@
+2019-07-09 20:53:13,733 - werkzeug - INFO -  * Restarting with stat
+2019-07-09 20:53:15,670 - werkzeug - WARNING -  * Debugger is active!
+2019-07-09 20:53:15,748 - werkzeug - INFO -  * Debugger PIN: 954-327-963
+2019-07-09 20:53:15,826 - werkzeug - INFO -  * Running on http://0.0.0.0:8443/ (Press CTRL+C to quit)

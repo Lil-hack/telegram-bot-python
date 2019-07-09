@@ -4,8 +4,7 @@ from messages import * # Инмпортируем все с файла сооб�
 
 @bot.message_handler(commands=['start']) # Выполняется, когда пользователь нажимает на start
 def send_welcome(message):
-    while True:
-        bot.send_message(message.chat.id, HELLO_MESSAGE)
+    bot.send_message(message.chat.id, HELLO_MESSAGE)
 
 
 @bot.message_handler(content_types=["text"]) # Любой текст
