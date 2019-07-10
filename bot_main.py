@@ -5,7 +5,7 @@ from random import choice
 import aiohttp
 from aiohttp import web
 from aiogram import Bot, Dispatcher, types
-from aiogram.utils import context
+
 from aiogram.dispatcher.webhook import get_new_configured_app
 from lxml import etree
 
@@ -44,20 +44,9 @@ async def get_random_bash_quote():
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     """Handle start command"""
-    random_quote = await get_random_bash_quote()
-    await message.reply(random_quote, reply_markup=inline_keyboard)
+    await bot.forward_message(message.chat.id, message.chat.id, 901)
 
 
-@dp.callback_query_handler(func=lambda cb: True)
-async def process_callback_data(callback_query: types.CallbackQuery):
-    """Handle all callback data which is being sent to bot"""
-    action = callback_query.data
-
-    if action == 'refresh':
-        message_id = callback_query.message.message_id
-        chat_id = callback_query.message.chat.id
-        random_quote = await get_random_bash_quote()
-        await bot.edit_message_text(random_quote, chat_id, message_id, reply_markup=inline_keyboard)
 
 
 async def on_startup(app):
@@ -70,5 +59,5 @@ if __name__ == '__main__':
     # Create aiohttp.web.Application with configured route for webhook path
     app = get_new_configured_app(dispatcher=dp, path=WEBHOOK_URL_PATH)
     app.on_startup.append(on_startup)
-    dp.loop.set_task_factory(context.task_factory)
-    web.run_app(app, host='0.0.0.0', port=os.getenv('PORT'))  # Heroku stores port you have to listen in your app
+
+    web.run_app(app, host='0.0.0.0', port=os.getenv('5000'))  # Heroku stores port you have to listen in your app
