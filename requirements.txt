@@ -1,6 +1,2 @@
-pyTelegramBotApi
-flask
-gunicorn
 aiogram
 aiohttp
-lxml
