@@ -5,9 +5,9 @@ from bot_handlers import bot
 import os
 
 server = flask.Flask(__name__)
-#
-# bot.remove_webhook()
-# bot.polling()
+
+bot.remove_webhook()
+bot.polling()
 
 @server.route('/' + TOKEN, methods=['POST'])
 def get_message():
