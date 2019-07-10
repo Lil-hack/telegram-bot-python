@@ -7,7 +7,7 @@ from aiogram.utils.executor import start_webhook
 TOKEN = '873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI'
 
 
-WEBHOOK_HOST = 'https://deploy-heroku-bot.herokuapp.com'  # name your app
+WEBHOOK_HOST = 'https://tel-bot-python.herokuapp.com'  # name your app
 WEBHOOK_PATH = '/webhook/'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
