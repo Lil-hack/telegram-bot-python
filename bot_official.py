@@ -5,7 +5,7 @@ from aiogram.types import InputMediaPhoto, InputMediaDocument
 import time
 from urllib.request import urlopen
 import json
-from io import BytesIO
+
 
 API_TOKEN = '873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI'
 
@@ -15,21 +15,6 @@ logging.basicConfig(level=logging.INFO)
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
-
-
-@dp.message_handler(commands=['start', 'help'])
-async def send_welcome(message: types.Message):
-    """
-    This handler will be called when client send `/start` or `/help` commands.
-    """
-    await message.reply("Hi!\nI'm EchoBot!\nPowered by aiogram.")
-
-
-@dp.message_handler(regexp='(^cat[s]?$|puss)')
-async def cats(message: types.Message):
-    with open('data/cats.jpg', 'rb') as photo:
-        await bot.send_photo(message.chat.id, photo, caption='Cats is here 😺',
-                             reply_to_message_id=message.message_id)
 
 
 @dp.message_handler()
