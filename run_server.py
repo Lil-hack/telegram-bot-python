@@ -54,14 +54,14 @@ async def echo(message: types.Message):
     print(t1-t0)
 @server.route('/' + TOKEN, methods=['POST'])
 def get_message():
-    bot.process_new_updates([types.Update.de_json(flask.request.stream.read().decode("utf-8"))])
+   
     return "!", 200
 
 
 @server.route('/', methods=["GET"])
 def index():
 
-    executor.set_webhook(dp,url="https://{}.herokuapp.com/{}".format(APP_NAME, TOKEN))
+    # executor.set_webhook(dp,url="https://{}.herokuapp.com/{}".format(APP_NAME, TOKEN))
     return "Hello from Heroku!", 200
 
 
