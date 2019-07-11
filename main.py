@@ -52,8 +52,9 @@ async def echo(message: types.Message):
 
         metka = False
         d = json.loads(page_source)
+        print(len(d['users']))
         for user in d['users']:
-            print(user['chatid'])
+
             if user['chatid'] == message.chat.id:
                 await bot.send_message(message.chat.id, 'You here')
                 metka = True
@@ -91,9 +92,8 @@ async def echo(message: types.Message):
         #     json.dump(d, json_file)
         # with open('data3.json', 'rb') as f:
         #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
-
+        print(len(d['users']))
         for user in d['users']:
-            print(user['chatid'])
             if user['chatid'] == message.chat.id:
                 await bot.send_message(message.chat.id, 'You here')
                 print(user)
