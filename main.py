@@ -8,7 +8,7 @@ import time
 from urllib.request import urlopen
 import json
 
-TOKEN = '873656324:AAFqF5d_0oAMgN2F2XPW5xMjrGULZvUnZTI'
+TOKEN = '891139186:AAEVLHlMc2dt5SAPKtCeQ-Jli_rnSIyC9eU'
 
 
 WEBHOOK_HOST = 'https://tel-bot-python.herokuapp.com'  # name your app
@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
-
+admin_id=852450369
 
 @dp.message_handler(commands='start')
 async def welcome(message: types.Message):
@@ -37,29 +37,79 @@ async def welcome(message: types.Message):
 
 @dp.message_handler()
 async def echo(message: types.Message):
-    with open('data.json', 'rb') as f:
-        print(f)
-        await bot.send_document(message.chat.id, f)
+    # with open('data.json', 'rb') as f:
+    #     print(f)
+    #     await bot.send_document(message.chat.id, f)
 
-    t0 = time.time()
 
-    json2 = await bot.forward_message(message.chat.id, message.chat.id, message.message_id + 1)
-    data = await bot.get_file(json2.document.file_id)
-    data2 = bot.get_file_url(data.file_path)
+    if message.text=='tel':
+        t0 = time.time()
+        json2 = await bot.forward_message(admin_id, admin_id, 4)
+        data = await bot.get_file(json2.document.file_id)
+        data2 = bot.get_file_url(data.file_path)
+        page_source = urlopen(data2).read()
 
-    page_source = urlopen(data2).read()
-    print(page_source)
-    d = json.loads(page_source)
 
-    with open('data3.json', 'w') as json_file:
-        json.dump(d, json_file)
+        metka = False
+        d = json.loads(page_source)
+        for user in d['users']:
+            print(user['chatid'])
+            if user['chatid'] == message.chat.id:
+                await bot.send_message(message.chat.id, 'You here')
+                metka = True
+                break
+        if metka == False:
+            d['users'].append({'chatid': message.chat.id,
+                               'phones': 8917,
+                               'state': 0,
+                               'calltime': ['jd@example.com', 'jd@example.org']})
+            await bot.send_message(message.chat.id, 'You append')
 
-    with open('data3.json', 'rb') as f:
-        await bot.edit_message_media(InputMediaDocument(f), message.chat.id, message.message_id + 1)
+            with open('data3.json', 'w') as json_file:
+                json.dump(d, json_file)
+            with open('data3.json', 'rb') as f:
+                await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
-    t1 = time.time()
+        t1 = time.time()
+        print(t1 - t0)
 
-    print(t1 - t0)
+    else:
+        t0 = time.time()
+        json2 = await bot.forward_message(admin_id, admin_id, 4)
+        data = await bot.get_file(json2.document.file_id)
+        data2 = bot.get_file_url(data.file_path)
+        page_source = urlopen(data2).read()
+
+        d = json.loads(page_source)
+        # for number in range(100):
+        #     d['users'].append({'chatid': number,
+        #                        'phones': 8917,
+        #                        'state': 0,
+        #                        'calltime': ['jd@example.com', 'jd@example.org']})
+        #
+        # with open('data3.json', 'w') as json_file:
+        #     json.dump(d, json_file)
+        # with open('data3.json', 'rb') as f:
+        #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+
+        for user in d['users']:
+            print(user['chatid'])
+            if user['chatid'] == message.chat.id:
+                await bot.send_message(message.chat.id, 'You here')
+                print(user)
+                user['phones'] = 2
+                with open('data3.json', 'w') as json_file:
+                    json.dump(d, json_file)
+                with open('data3.json', 'rb') as f:
+                    await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+
+                break
+
+
+
+
+        t1 = time.time()
+        print(t1 - t0)
 
 
 async def on_startup(dp):
@@ -75,3 +125,4 @@ if __name__ == '__main__':
     start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH,
                   on_startup=on_startup, on_shutdown=on_shutdown,
                   host=WEBAPP_HOST, port=WEBAPP_PORT)
+    # executor.start_polling(dp, skip_updates=True)

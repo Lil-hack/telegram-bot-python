@@ -1,18 +1,13 @@
-{"menu": {
-    "header": "SVG Viewer",
-    "items": [
-        {"id": "Open"},
-        {"id": "OpenNew", "label": "Open New"},
-        null,
-        {"id": "ZoomIn", "label": "Zoom In"},
-        {"id": "ZoomOut", "label": "Zoom Out"},
-        {"id": "OriginalView", "label": "Original View"},
-        null,
-        {"id": "Quality"},
-        {"id": "Pause"},
-
-        null,
-        {"id": "Help"},
-        {"id": "About", "label": "About Adobe CVG Viewer..."}
-    ]
-}}
+{
+  "users": [
+    {
+      "chatid": 12345,
+      "phones": 8917,
+      "state": 0,
+      "calltime": [
+        "jd@example.com",
+        "jd@example.org"
+      ]
+    }
+  ]
+}
