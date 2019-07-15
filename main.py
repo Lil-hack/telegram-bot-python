@@ -8,11 +8,55 @@ import time
 from urllib.request import urlopen
 import json
 import threading
+import asyncio
+import aiotools
+import math, time
+from async_cron.job import CronJob
+from async_cron.schedule import Scheduler
+
+from twilio.rest import Client
+
+from twilio.rest import Client
+
+
+
+async def test(*args, **kwargs):
+    print(args, kwargs)
+
+
+def tt(*args, **kwargs):
+    print(args, kwargs)
+
+
+
+async def async_function():
+    print("Hello, World!")
+
+
 
 def printit():
-  threading.Timer(5.0, printit).start()
+
+  json2 =   bot.forward_message(admin_id, admin_id, 4)
+  # data =  bot.get_file(json2.document.file_id)
+  # data2 = bot.get_file_url(data.file_path)
+  # page_source = urlopen(data2).read()
+  # d = json.loads(page_source)
+  # for user in d['users']:
+  #
+  #   print(user['chatid'])
+
+  # client = Client(account_sid, auth_token)
+  # call = client.calls.create(
+  #     url='https://ex.ru',
+  #     to='+79162721765',
+  #     from_='+12027967603'
+  # )
+  # print(call.sid)
+
   print ("Hello, World!")
 
+account_sid = 'AC52a194acef951b3b36e94f294d836ae6'
+auth_token = '988090f0870502e26899be8b5aeb41f0'
 
 TOKEN = '891139186:AAEVLHlMc2dt5SAPKtCeQ-Jli_rnSIyC9eU'
 
@@ -29,6 +73,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 admin_id=852450369
+
 
 @dp.message_handler(commands='start')
 async def welcome(message: types.Message):
@@ -129,8 +174,21 @@ async def on_shutdown(dp):
 
 
 if __name__ == '__main__':
-    printit()
+    # threading.Timer(5.0, printit).start()
+    msh = Scheduler()
+    myjob = CronJob(name='test', run_total=100).every(
+        5).second.go(test, (1, 2, 3), name=123)
+
+    msh.add_job(myjob)
+
+
     start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH,
                   on_startup=on_startup, on_shutdown=on_shutdown,
                   host=WEBAPP_HOST, port=WEBAPP_PORT)
+    loop = asyncio.get_event_loop()
+
+    try:
+        loop.run_until_complete(msh.start())
+    except KeyboardInterrupt:
+        print('exit')
     # executor.start_polling(dp, skip_updates=True)
