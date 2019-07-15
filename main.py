@@ -7,6 +7,12 @@ from aiogram.types import InputMediaPhoto, InputMediaDocument
 import time
 from urllib.request import urlopen
 import json
+import threading
+
+def printit():
+  threading.Timer(5.0, printit).start()
+  print ("Hello, World!")
+
 
 TOKEN = '891139186:AAEVLHlMc2dt5SAPKtCeQ-Jli_rnSIyC9eU'
 
@@ -75,12 +81,12 @@ async def echo(message: types.Message):
         print(t1 - t0)
 
     else:
-        t0 = time.time()
+
         json2 = await bot.forward_message(admin_id, admin_id, 4)
         data = await bot.get_file(json2.document.file_id)
         data2 = bot.get_file_url(data.file_path)
         page_source = urlopen(data2).read()
-
+        #
         d = json.loads(page_source)
         # for number in range(100):
         #     d['users'].append({'chatid': number,
@@ -93,16 +99,16 @@ async def echo(message: types.Message):
         # with open('data3.json', 'rb') as f:
         #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
         print(len(d['users']))
-
+        t0 = time.time()
         for user in d['users']:
             if user['chatid'] == message.chat.id:
                 await bot.send_message(message.chat.id, 'You here')
                 print(user)
                 user['phones'] = 2
-                # with open('data3.json', 'w') as json_file:
-                #     json.dump(d, json_file)
-                # with open('data3.json', 'rb') as f:
-                #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+                with open('data3.json', 'w') as json_file:
+                    json.dump(d, json_file)
+                with open('data3.json', 'rb') as f:
+                    await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
                 break
 
@@ -123,6 +129,7 @@ async def on_shutdown(dp):
 
 
 if __name__ == '__main__':
+    printit()
     # start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH,
     #               on_startup=on_startup, on_shutdown=on_shutdown,
     #               host=WEBAPP_HOST, port=WEBAPP_PORT)
