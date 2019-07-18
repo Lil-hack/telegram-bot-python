@@ -55,7 +55,7 @@ async def timer_logic():
                 client = Client(account_sid, auth_token)
                 call = client.calls.create(
                 url='https://ex.ru',
-                to='+79162721765',
+                to=user.phones,
                 from_='+12027967603'
                 )
 
