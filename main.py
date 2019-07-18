@@ -39,7 +39,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 admin_id=852450369
-heroku_start=False
+heroku_start=True
 
 
 async def timer_logic():
