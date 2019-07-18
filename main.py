@@ -5,7 +5,7 @@ import re
 from aiogram import Bot, types, md
 from aiogram.utils.executor import start_webhook
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import InputMediaPhoto, InputMediaDocument
+from aiogram.types import InputMediaPhoto, InputMediaDocument, KeyboardButton, ReplyKeyboardMarkup, ContentType
 from urllib.request import urlopen
 import json
 import threading
@@ -39,19 +39,16 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 admin_id=852450369
+heroku_start=False
 
 
-
-async def forward():
+async def timer_logic():
     hour = datetime.datetime.now().time().hour
     minute = datetime.datetime.now().time().minute
 
-    dataJson=await bot.forward_message(admin_id, admin_id, 4)
-    data = await bot.get_file(dataJson.document.file_id)
-    data2 = bot.get_file_url(data.file_path)
-    page_source = urlopen(data2).read()
-    d = json.loads(page_source)
-    for user in d['users']:
+    data = await get_data()
+    print(hour,':',minute)
+    for user in data['users']:
         for time in user['calltime']:
 
             if hour==time[0] and minute==time[1]:
@@ -78,126 +75,144 @@ async def forward():
             # if hour > time[0]:
             #     user['calltime'].remove(time)
 
+    await save_data(data)
+
+
+def timer_start():
+    threading.Timer(60.0, timer_start).start()
+
+    try:
+        asyncio.run_coroutine_threadsafe(timer_logic(),bot.loop)
+    except Exception as exc:
+        print(f'The coroutine raised an exception: {exc!r}')
+
+
+async def get_data():
+    forward_data = await bot.forward_message(admin_id, admin_id, 4)
+    file_data = await bot.get_file(forward_data.document.file_id)
+    file_url_data = bot.get_file_url(file_data.file_path)
+    json_file= urlopen(file_url_data).read()
+    return json.loads(json_file)
+
+async def save_data(data):
     with open('data3.json', 'w') as json_file:
-        json.dump(d, json_file)
+        json.dump(data, json_file)
     with open('data3.json', 'rb') as f:
         await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
 
-def printit():
-    threading.Timer(60.0, printit).start()
-
-    try:
-        asyncio.run_coroutine_threadsafe(forward(),bot.loop)
-
-    except asyncio.TimeoutError:
-        print('The coroutine took too long, cancelling the task...')
-
-    except Exception as exc:
-        print(f'The coroutine raised an exception: {exc!r}')
-    else:
-        print(f'The coroutine returnr')
-
-
-  # client = Client(account_sid, auth_token)
-  # call = client.calls.create(
-  #     url='https://ex.ru',
-  #     to='+79162721765',
-  #     from_='+12027967603'
-  # )
-  # print(call.sid)
-
-
 @dp.message_handler(commands='start')
 async def welcome(message: types.Message):
+    button = KeyboardButton('Регистрация')
+    button.request_contact = True
+    kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button)
     await bot.send_message(
         message.chat.id,
-        f'Приветствую! Это демонтрационный бот\n'
-        f'Подробная информация на '
-        f'{md.hlink("github", "https://github.com/deploy-your-bot-everywhere/heroku")}',
-        parse_mode=types.ParseMode.HTML,
-        disable_web_page_preview=True)
+        f'Приветствую! Это демонтрационный бот',
+        reply_markup=kb)
 
+
+
+@dp.message_handler(content_types=ContentType.CONTACT)
+async def registration(message: types.Message):
+    print(message.contact.phone_number)
+    t0 = time.time()
+
+    metka = False
+    data = await get_data()
+    print(len(data['users']))
+    for user in data['users']:
+
+        if user['chatid'] == message.chat.id:
+            await bot.send_message(message.chat.id, 'You here')
+            metka = True
+            break
+    if metka == False:
+        data['users'].append({'chatid': message.chat.id,
+                           'phones': message.contact.phone_number,
+                           'state': 0,
+                           'calltime': [[datetime.datetime.now().time().hour,datetime.datetime.now().time().minute+1]]})
+        print(str(datetime.datetime.now().time))
+
+        button = KeyboardButton('Обнулить')
+        button2 = KeyboardButton('Список звонков')
+        button3 = KeyboardButton('Инфо')
+        kb = ReplyKeyboardMarkup(resize_keyboard=True).row(button,button2).add(button3)
+
+        await bot.send_message(message.chat.id, 'Вы удачно зарегистрирвоались', reply_markup=kb)
+
+        await save_data(data)
+
+
+    t1 = time.time()
+    print(t1 - t0)
 
 @dp.message_handler()
-async def echo(message: types.Message):
+async def main_logic(message: types.Message):
+
+    t0 = time.time()
     # with open('data.json', 'rb') as f:
     #     print(f)
     #     await bot.send_document(message.chat.id, f)
-    json2 = await bot.forward_message(admin_id, admin_id, 4)
-    data = await bot.get_file(json2.document.file_id)
-    data2 = bot.get_file_url(data.file_path)
-    page_source = urlopen(data2).read()
+
+    data = await get_data()
+    metka2=False
+    for user in data['users']:
+        if user['chatid'] == message.chat.id:
+
+            try:
+                time_user = int(re.search(r'\d+', message.text).group())
+            except Exception:
+                time_user = 0
+
+            if time_user > 0:
+                # for number in range(100):
+                #     d['users'].append({'chatid': number,
+                #                        'phones': 8917,
+                #                        'state': 0,
+                #                        'calltime': ['jd@example.com', 'jd@example.org']})
+                #
+                # with open('data3.json', 'w') as json_file:
+                #     json.dump(d, json_file)
+                # with open('data3.json', 'rb') as f:
+                #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+
+                new_time = datetime.datetime.now() + datetime.timedelta(minutes=time_user)
+                user['calltime'].append([new_time.time().hour, new_time.time().minute])
+                await save_data(data)
+                await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
+
+
+            if message.text == 'Обнулить':
+                user['calltime'].clear()
+                await save_data(data)
+
+            if message.text == 'Список звонков':
+                for time_call in user['calltime']:
+                    await bot.send_message(message.chat.id, 'время звонка на {}:{}'.format(str(time_call[0]),str(time_call[1])))
+
+            if message.text == 'Инфо':
+                await bot.send_message(message.chat.id, 'Инфо тут')
+
+
+            metka2 = True
+            break
+    if metka2==False:
+        button = KeyboardButton('Регистрация')
+        button.request_contact = True
+        kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button)
+        await bot.send_message(message.chat.id, 'Вы не зарегестрированы', reply_markup=kb)
 
     if message.text == 'clean':
-        t0 = time.time()
         with open('data2.json', 'rb') as f:
             await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
-        t1 = time.time()
-        print(t1 - t0)
 
 
-    if message.text=='tel':
-        t0 = time.time()
-
-        metka = False
-        d = json.loads(page_source)
-        print(len(d['users']))
-        for user in d['users']:
-
-            if user['chatid'] == message.chat.id:
-                await bot.send_message(message.chat.id, 'You here')
-                metka = True
-                break
-        if metka == False:
-            d['users'].append({'chatid': message.chat.id,
-                               'phones': 8917,
-                               'state': 0,
-                               'calltime': [[datetime.datetime.now().time().hour,datetime.datetime.now().time().minute+1]]})
-            print(str(datetime.datetime.now().time))
-            await bot.send_message(message.chat.id, 'You append')
-
-            with open('data3.json', 'w') as json_file:
-                json.dump(d, json_file)
-            with open('data3.json', 'rb') as f:
-                await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
-
-        t1 = time.time()
-        print(t1 - t0)
-    try:
-        time_user=int(re.search(r'\d+', message.text).group())
-    except Exception:
-        time_user=0
-
-    if  time_user > 0:
-
-        d = json.loads(page_source)
-        # for number in range(100):
-        #     d['users'].append({'chatid': number,
-        #                        'phones': 8917,
-        #                        'state': 0,
-        #                        'calltime': ['jd@example.com', 'jd@example.org']})
-        #
-        # with open('data3.json', 'w') as json_file:
-        #     json.dump(d, json_file)
-        # with open('data3.json', 'rb') as f:
-        #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
-        print(len(d['users']))
-        t0 = time.time()
-        for user in d['users']:
-            if user['chatid'] == message.chat.id:
-                new_time=datetime.datetime.now()+datetime.timedelta(minutes=time_user)
-                user['calltime'].append([new_time.time().hour,new_time.time().minute])
-                with open('data3.json', 'w') as json_file:
-                    json.dump(d, json_file)
-                with open('data3.json', 'rb') as f:
-                    await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
-
-                break
+    t1 = time.time()
+    print(t1 - t0)
 
 
-        t1 = time.time()
-        print(t1 - t0)
+
 
 
 async def on_startup(dp):
@@ -210,11 +225,11 @@ async def on_shutdown(dp):
 
 
 if __name__ == '__main__':
-    printit()
+    timer_start()
 
-
-    start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH,
-                  on_startup=on_startup, on_shutdown=on_shutdown,
-                  host=WEBAPP_HOST, port=WEBAPP_PORT)
-
-    # executor.start_polling(dp, skip_updates=True)
+    if heroku_start:
+        start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH,
+                      on_startup=on_startup, on_shutdown=on_shutdown,
+                      host=WEBAPP_HOST, port=WEBAPP_PORT)
+    else:
+        executor.start_polling(dp, skip_updates=True)
