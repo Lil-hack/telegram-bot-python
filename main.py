@@ -43,7 +43,7 @@ heroku_start=False
 
 
 async def timer_logic():
-    hour = datetime.datetime.now().time().hour
+    hour = datetime.datetime.now().time().hour+3
     minute = datetime.datetime.now().time().minute
 
     data = await get_data()
@@ -131,7 +131,7 @@ async def registration(message: types.Message):
         data['users'].append({'chatid': message.chat.id,
                            'phones': message.contact.phone_number,
                            'state': 0,
-                           'calltime': [[datetime.datetime.now().time().hour,datetime.datetime.now().time().minute+1]]})
+                           'calltime': [[datetime.datetime.now().time().hour+3,datetime.datetime.now().time().minute+1]]})
         print(str(datetime.datetime.now().time))
 
         button = KeyboardButton('Обнулить')
