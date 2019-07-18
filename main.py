@@ -53,11 +53,11 @@ async def timer_logic():
 
             if hour==time[0] and minute==time[1]:
                 print('run')
-                print(user.phones)
+                print(user['phones'])
                 client = Client(account_sid, auth_token)
                 call = client.calls.create(
                 url='https://ex.ru',
-                to=user.phones,
+                to=user['phones'],
                 from_='+12027967603'
                 )
                 print(call)
