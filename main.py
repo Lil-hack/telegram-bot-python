@@ -178,7 +178,7 @@ async def main_logic(message: types.Message):
                 #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
                 new_time = datetime.datetime.now() + datetime.timedelta(minutes=time_user)
-                user['calltime'].append([new_time.time().hour, new_time.time().minute])
+                user['calltime'].append([new_time.time().hour+3, new_time.time().minute])
                 await save_data(data)
                 await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
 
