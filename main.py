@@ -11,15 +11,12 @@ import json
 import threading
 import asyncio
 
-import math, time
+import time
 import datetime
-
-
-
 
 from twilio.rest import Client
 
-
+from name import *
 
 account_sid = 'AC52a194acef951b3b36e94f294d836ae6'
 auth_token = '988090f0870502e26899be8b5aeb41f0'
@@ -55,7 +52,7 @@ async def timer_logic():
             if hour==time[0] and minute==time[1]:
 
                 client = Client(account_sid, auth_token)
-                call = client.calls.create(
+                client.calls.create(
                 url='https://ex.ru',
                 to=user['phones'],
                 from_='+12027967603'
@@ -105,7 +102,7 @@ async def save_data(data):
 
 @dp.message_handler(commands='start')
 async def welcome(message: types.Message):
-    button = KeyboardButton('Регистрация')
+    button = KeyboardButton(B_REGISTRER)
     button.request_contact = True
     kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button)
     await bot.send_message(
@@ -135,11 +132,11 @@ async def registration(message: types.Message):
                            'state': 0,
                            'calltime': [[datetime.datetime.now().time().hour+3,datetime.datetime.now().time().minute+1]]})
         print(str(datetime.datetime.now().time))
-
-        button = KeyboardButton('Обнулить')
-        button2 = KeyboardButton('Список звонков')
-        button3 = KeyboardButton('Инфо')
-        kb = ReplyKeyboardMarkup(resize_keyboard=True).row(button,button2).add(button3)
+        button0 = KeyboardButton(B_CALL_NOW)
+        button = KeyboardButton(B_CLEAN)
+        button2 = KeyboardButton(B_LIST_CALLS)
+        button3 = KeyboardButton(B_INFO)
+        kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button0).row(button,button2).add(button3)
 
         await bot.send_message(message.chat.id, 'Вы удачно зарегистрирвоались', reply_markup=kb)
 
@@ -172,67 +169,89 @@ async def main_logic(message: types.Message):
             print(time_user)
             if len(time_user)==1:
                 if time_user[0] > 0 and time_user[0] < 120:
-                    # for number in range(100):
-                    #     d['users'].append({'chatid': number,
-                    #                        'phones': 8917,
-                    #                        'state': 0,
-                    #                        'calltime': ['jd@example.com', 'jd@example.org']})
-                    #
-                    # with open('data3.json', 'w') as json_file:
-                    #     json.dump(d, json_file)
-                    # with open('data3.json', 'rb') as f:
-                    #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
-                    metka_time=False
-                    for time in user['calltime']:
-                        if hour == time[0] and minute == time[1]:
-                    new_time = datetime.datetime.now() + datetime.timedelta(minutes=time_user[0])
-                    user['calltime'].append([new_time.time().hour + 3, new_time.time().minute])
-                    await save_data(data)
-                    await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
 
+                    new_time = datetime.datetime.now() + datetime.timedelta(minutes=time_user[0])
+
+                    metka_time = False
+                    for time_us in user['calltime']:
+                        if (new_time.time().hour + 3) == time_us[0] and new_time.time().minute == time_us[1]:
+                            await bot.send_message(message.chat.id, 'На данное время у Вас уже записан звонок')
+                            metka_time=True
+                            break
+                    if metka_time==False:
+                        user['calltime'].append([new_time.time().hour + 3, new_time.time().minute])
+                        await save_data(data)
+                        await bot.send_message(message.chat.id,  'Вы добавили звонок на {}:{}'
+                                               .format(str(new_time.time().hour + 3),str(new_time.time().minute)))
+                else:
+                    await bot.send_message(message.chat.id, 'Укажите время от 1 до 120 минут')
             if len(time_user)==2:
                 if time_user[0] >= 0 and time_user[0] <= 24 and time_user[1] >= 0 and time_user[1] <= 60:
-                    # for number in range(100):
-                    #     d['users'].append({'chatid': number,
-                    #                        'phones': 8917,
-                    #                        'state': 0,
-                    #                        'calltime': ['jd@example.com', 'jd@example.org']})
-                    #
-                    # with open('data3.json', 'w') as json_file:
-                    #     json.dump(d, json_file)
-                    # with open('data3.json', 'rb') as f:
-                    #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
 
-                    user['calltime'].append( [time_user[0],time_user[1]])
-                    await save_data(data)
-                    await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
+                    metka_time = False
+                    for time_us in user['calltime']:
+                        if time_user[0] == time_us[0] and time_user[1] == time_us[1]:
+                            await bot.send_message(message.chat.id,'На данное время уже запланирован звонок')
+                            metka_time = True
+                            break
+                    if metka_time == False:
+                        user['calltime'].append([time_user[0], time_user[1]])
+                        await save_data(data)
+                        await bot.send_message(message.chat.id, 'Вы добавили звонок на {}:{}'
+                                               .format(str(time_user[0]),str(time_user[1])))
+                else:
+                    await bot.send_message(message.chat.id, 'Вы указали неправильное время. Попробуйте занова.')
 
 
-            if message.text == 'Обнулить':
+            if message.text == B_CLEAN:
                 user['calltime'].clear()
                 await save_data(data)
+                await bot.send_message(message.chat.id, 'Все звонки удачно сброшены.')
 
-            if message.text == 'Список звонков':
-                for time_call in user['calltime']:
-                    await bot.send_message(message.chat.id, 'время звонка на {}:{}'.format(str(time_call[0]),str(time_call[1])))
+            if message.text == B_CALL_NOW:
+                client = Client(account_sid, auth_token)
+                client.calls.create(
+                    url='https://ex.ru',
+                    to=user['phones'],
+                    from_='+12027967603'
+                )
 
-            if message.text == 'Инфо':
+            if message.text == B_LIST_CALLS:
+                if len(user['calltime'])==0:
+                    await bot.send_message(message.chat.id, 'У Вас нет запланированных звонков')
+                else:
+                    str_call_list='Запланированные звонки:\n'
+                    for time_call in user['calltime']:
+                        str_call_list+=str(time_call[0])+':'+str(time_call[1])+'\n'
+                    await bot.send_message(message.chat.id, str_call_list)
+            if message.text == B_INFO:
                 await bot.send_message(message.chat.id, 'Инфо тут')
 
 
             metka2 = True
             break
     if metka2==False:
-        button = KeyboardButton('Регистрация')
+        button = KeyboardButton(B_REGISTRER)
         button.request_contact = True
         kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button)
-        await bot.send_message(message.chat.id, 'Вы не зарегестрированы', reply_markup=kb)
+        await bot.send_message(message.chat.id, 'Вы не зарегистрированы, нажмите на кнопку "Регистрация"', reply_markup=kb)
 
     if message.text == 'clean':
         with open('data2.json', 'rb') as f:
             await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
+    if message.text == 'add':
+        for number in range(100):
+            data['users'].append({'chatid': number,
+                               'phones': 8917,
+                               'state': 0,
+                               'calltime': []})
+
+        with open('data3.json', 'w') as json_file:
+            json.dump(data, json_file)
+        with open('data3.json', 'rb') as f:
+            await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
     t1 = time.time()
     print(t1 - t0)
