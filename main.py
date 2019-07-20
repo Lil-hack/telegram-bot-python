@@ -39,7 +39,8 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 admin_id=852450369
-heroku_start=True
+heroku_start=False
+
 
 
 async def timer_logic():
@@ -52,15 +53,14 @@ async def timer_logic():
         for time in user['calltime']:
 
             if hour==time[0] and minute==time[1]:
-                print('run')
-                print(user['phones'])
+
                 client = Client(account_sid, auth_token)
                 call = client.calls.create(
                 url='https://ex.ru',
                 to=user['phones'],
                 from_='+12027967603'
                 )
-                print(call)
+
                 # call = client.calls.create(
                 #     url='https://ex.ru',
                 #     to='+79167105584',
@@ -161,28 +161,52 @@ async def main_logic(message: types.Message):
     metka2=False
     for user in data['users']:
         if user['chatid'] == message.chat.id:
-
+            time_user=[]
             try:
-                time_user = int(re.search(r'\d+', message.text).group())
-            except Exception:
-                time_user = 0
+                for stroka in message.text.split(':'):
+                    time_user.append(int(re.search(r'\d+',stroka).group()))
 
-            if time_user > 0:
-                # for number in range(100):
-                #     d['users'].append({'chatid': number,
-                #                        'phones': 8917,
-                #                        'state': 0,
-                #                        'calltime': ['jd@example.com', 'jd@example.org']})
-                #
-                # with open('data3.json', 'w') as json_file:
-                #     json.dump(d, json_file)
-                # with open('data3.json', 'rb') as f:
-                #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+            except Exception as ex:
+                print(ex)
 
-                new_time = datetime.datetime.now() + datetime.timedelta(minutes=time_user)
-                user['calltime'].append([new_time.time().hour+3, new_time.time().minute])
-                await save_data(data)
-                await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
+            print(time_user)
+            if len(time_user)==1:
+                if time_user[0] > 0 and time_user[0] < 120:
+                    # for number in range(100):
+                    #     d['users'].append({'chatid': number,
+                    #                        'phones': 8917,
+                    #                        'state': 0,
+                    #                        'calltime': ['jd@example.com', 'jd@example.org']})
+                    #
+                    # with open('data3.json', 'w') as json_file:
+                    #     json.dump(d, json_file)
+                    # with open('data3.json', 'rb') as f:
+                    #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+                    metka_time=False
+                    for time in user['calltime']:
+                        if hour == time[0] and minute == time[1]:
+                    new_time = datetime.datetime.now() + datetime.timedelta(minutes=time_user[0])
+                    user['calltime'].append([new_time.time().hour + 3, new_time.time().minute])
+                    await save_data(data)
+                    await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
+
+            if len(time_user)==2:
+                if time_user[0] >= 0 and time_user[0] <= 24 and time_user[1] >= 0 and time_user[1] <= 60:
+                    # for number in range(100):
+                    #     d['users'].append({'chatid': number,
+                    #                        'phones': 8917,
+                    #                        'state': 0,
+                    #                        'calltime': ['jd@example.com', 'jd@example.org']})
+                    #
+                    # with open('data3.json', 'w') as json_file:
+                    #     json.dump(d, json_file)
+                    # with open('data3.json', 'rb') as f:
+                    #     await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+
+
+                    user['calltime'].append( [time_user[0],time_user[1]])
+                    await save_data(data)
+                    await bot.send_message(message.chat.id, 'Вы добавили время звонка на')
 
 
             if message.text == 'Обнулить':
