@@ -57,19 +57,6 @@ async def timer_logic():
                 to=user['phones'],
                 from_='+12027967603'
                 )
-
-                # call = client.calls.create(
-                #     url='https://ex.ru',
-                #     to='+79167105584',
-                #     from_='+12027967603'
-                # )
-                #
-                # call = client.calls.create(
-                #     url='https://ex.ru',
-                #     to='+79171673630',
-                #     from_='+12027967603'
-                # )
-
                 user['calltime'].remove(time)
             # if hour > time[0]:
             #     user['calltime'].remove(time)
@@ -107,8 +94,16 @@ async def welcome(message: types.Message):
     kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button)
     await bot.send_message(
         message.chat.id,
-        f'Приветствую! Это демонтрационный бот',
+        T_HELLO,
         reply_markup=kb)
+    await bot.send_sticker(message.chat.id, 'CAADBAAD8AIAAlI5kwZeZ9hi6NX9qQI')
+
+
+@dp.message_handler(content_types=ContentType.STICKER)
+async def sticker(message: types.sticker):
+    print(message.sticker)
+    await bot.send_sticker(message.chat.id, 'CAADAgADBgYAAj6IGgvB6clLaXwoAQI')
+
 
 
 
