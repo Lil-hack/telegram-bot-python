@@ -25,7 +25,7 @@ auth_token = '988090f0870502e26899be8b5aeb41f0'
 TOKEN = '891139186:AAEVLHlMc2dt5SAPKtCeQ-Jli_rnSIyC9eU'
 
 
-WEBHOOK_HOST = 'https://tel-bot-python.herokuapp.com'  # name your app
+WEBHOOK_HOST = 'https://callme-bot.herokuapp.com'  # name your app
 WEBHOOK_PATH = '/webhook/'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
@@ -37,7 +37,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 admin_id=852450369
-heroku_start=False
+heroku_start=True
 
 
 
