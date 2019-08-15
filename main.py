@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 import re
@@ -41,10 +42,12 @@ heroku_start=False
 
 
 async def timer_logic():
+
     hour = datetime.datetime.now().time().hour+3
     minute = datetime.datetime.now().time().minute
 
     data = await get_data()
+    # print(data)
     print(hour,':',minute)
     for user in data['users']:
         for time in user['calltime']:
@@ -74,17 +77,30 @@ def timer_start():
 
 
 async def get_data():
+    t = time.time()
     forward_data = await bot.forward_message(admin_id, admin_id, 4)
     file_data = await bot.get_file(forward_data.document.file_id)
     file_url_data = bot.get_file_url(file_data.file_path)
     json_file= urlopen(file_url_data).read()
+    print('timeget')
+    print(time.time() - t)
     return json.loads(json_file)
+    # return json_file
 
 async def save_data(data):
-    with open('data3.json', 'w') as json_file:
-        json.dump(data, json_file)
-    with open('data3.json', 'rb') as f:
-        await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+    t=time.time()
+    try:
+        await bot.edit_message_media(InputMediaDocument(io.StringIO(json.dumps(data))), admin_id, 4)
+    except Exception as ex:
+        print(ex)
+
+
+
+
+
+    print('timesave')
+    print(time.time() - t)
+
 
 
 @dp.message_handler(commands='start')
@@ -145,11 +161,16 @@ async def registration(message: types.Message):
 async def main_logic(message: types.Message):
 
     t0 = time.time()
+    if message.text == 'clean':
+        with open('data2.json', 'rb') as f:
+            await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
     # with open('data.json', 'rb') as f:
     #     print(f)
     #     await bot.send_document(message.chat.id, f)
-
+    print(message.message_id)
     data = await get_data()
+    # print(data)
+    print(len(data['users']))
     metka2=False
     for user in data['users']:
         if user['chatid'] == message.chat.id:
@@ -159,7 +180,8 @@ async def main_logic(message: types.Message):
                     time_user.append(int(re.search(r'\d+',stroka).group()))
 
             except Exception as ex:
-                print(ex)
+                # print(ex)
+                pass
 
             print(time_user)
             if len(time_user)==1:
@@ -232,12 +254,10 @@ async def main_logic(message: types.Message):
         kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button)
         await bot.send_message(message.chat.id, 'Вы не зарегистрированы, нажмите на кнопку "Регистрация"', reply_markup=kb)
 
-    if message.text == 'clean':
-        with open('data2.json', 'rb') as f:
-            await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
+
 
     if message.text == 'add':
-        for number in range(100):
+        for number in range(10000):
             data['users'].append({'chatid': number,
                                'phones': 8917,
                                'state': 0,
@@ -249,7 +269,7 @@ async def main_logic(message: types.Message):
             await bot.edit_message_media(InputMediaDocument(f), admin_id, 4)
 
     t1 = time.time()
-    print(t1 - t0)
+    print('end: '+str(t1 - t0))
 
 
 
